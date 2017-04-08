@@ -1,0 +1,9 @@
+tensorflow
+keras
+numpy
+opencv-python
+h5py
+python-socketio
+eventlet
+Pillow
+flask
