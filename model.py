@@ -51,7 +51,7 @@ def load_samples(dirs):
             lines = [line for line in reader]
             all_samples = all_samples + lines
     print('Loaded {} samples'.format(len(all_samples)))
-    return all_samples[:10]
+    return all_samples
 
 def sample_generator(samples, batch_size=60):  # batch_size should be multiple of 6
     correction = 0.2

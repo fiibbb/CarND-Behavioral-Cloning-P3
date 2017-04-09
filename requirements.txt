@@ -7,3 +7,4 @@ python-socketio
 eventlet
 Pillow
 flask
+sklearn
