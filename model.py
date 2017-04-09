@@ -81,7 +81,7 @@ def train(recording_dirs, saved_model=None, save_to=None):
         m.compile(loss='mse', optimizer='adam')
 
     print('Training...')
-    m.fit(X_train, y_train, validation_split=0.2, shuffle=True, epochs=3)
+    m.fit(X_train, y_train, validation_split=0.2, shuffle=True, epochs=6)
 
     if save_to:
         print('Saving...')
