@@ -6,9 +6,10 @@ from keras.layers import Cropping2D
 import numpy as np
 import cv2
 import csv
+import argparse
 from os import path
 
-# Input shape is (160, 320, 3)
+# Assume input shape is (160, 320, 3)
 def nv_sdc():
 
     model = Sequential()
@@ -44,11 +45,18 @@ def load_data(dir):
     with open(path.join(dir, 'driving_log.csv')) as f:
         reader = csv.reader(f)
         lines = [line for line in reader][1:]
-    images = [cv2.imread(path.join(dir, line[0])) for line in lines]
-    images = images + ([cv2.flip(image.copy(), 1) for image in images])
-    angles = [float(line[3]) for line in lines]
-    angles = angles + ([-angle for angle in angles])
-    print(' -- loaded {} x 2 samples'.format(len(images)//2))
+
+    correction = 0.2
+    images = [cv2.imread(path.join(dir, line[0].strip())) for line in lines] + \
+             [cv2.imread(path.join(dir, line[1].strip())) for line in lines] + \
+             [cv2.imread(path.join(dir, line[2].strip())) for line in lines]
+    angles = [float(line[3]) for line in lines] + \
+             [float(line[3]) + correction for line in lines] + \
+             [float(line[3]) - correction for line in lines]
+    images = images + [cv2.flip(image.copy(), 1) for image in images]
+    angles = angles + [-angle for angle in angles]
+
+    print(' -- loaded {} x 6 samples'.format(len(lines)))
     return images, angles
 
 def load_all_data(dirs):
@@ -80,5 +88,12 @@ def train(recording_dirs, saved_model=None, save_to=None):
         m.save(save_to)
         print(' -- saved to {}'.format(save_to))
 
-recording_dirs = ['data']
-train(recording_dirs, save_to='saved_models/set06/model_official_data.h5')
+def run():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('save_to')
+    args = parser.parse_args()
+
+    train(['data'], save_to=args.save_to)
+
+if __name__ == '__main__':
+    run()
