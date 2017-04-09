@@ -93,7 +93,7 @@ def train(data_dirs, saved_model=None, save_to=None):
         train_generator, \
         validation_data=valid_generator, \
         steps_per_epoch=len(train_samples)*6/BATCH_SIZE, \
-        epochs=3, \
+        epochs=10, \
         validation_steps=len(valid_samples)*6/BATCH_SIZE \
     )
     # m.fit(X_train, y_train, validation_split=0.2, shuffle=True, epochs=6)
@@ -108,7 +108,13 @@ def run():
     parser.add_argument('save_to')
     args = parser.parse_args()
 
-    data_dirs = ['data/01_official']
+    data_dirs = [
+        'data/01_official',
+        'data/02_keep_lane',
+        'data/03_recover_lane',
+        'data/04_curve',
+        'data/05_reverse'
+    ]
     train(data_dirs, save_to=args.save_to)
 
 if __name__ == '__main__':

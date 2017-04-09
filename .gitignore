@@ -2,3 +2,4 @@ recording/
 env/
 mac_sim.app
 .DS_Store
+model.h5
