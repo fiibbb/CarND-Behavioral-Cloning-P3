@@ -19,7 +19,7 @@ def nv_sdc():
 
     # Normalization and cropping
     model.add(Lambda(lambda x: (x / 255. - 0.5), input_shape=(160, 320, 3)))
-    model.add(Cropping2D(cropping=((70, 25), (0, 0)), input_shape=(160, 320, 3)))
+    model.add(Cropping2D(cropping=((60, 20), (0, 0)), input_shape=(160, 320, 3)))
 
     # 3 5x5 convolutional layers and 2 3x3 convolutional layers
     model.add(Conv2D(24, (5, 5), strides=(2, 2), activation='relu'))
@@ -108,7 +108,7 @@ def run():
     parser.add_argument('save_to')
     args = parser.parse_args()
 
-    data_dirs = ['data/03_recover_lane', 'data/01_official']
+    data_dirs = ['data/01_official']
     train(data_dirs, save_to=args.save_to)
 
 if __name__ == '__main__':
