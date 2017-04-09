@@ -69,7 +69,7 @@ def sample_generator(samples, batch_size=60):  # batch_size should be multiple o
                 images, angles = images + new_images, angles + new_angles
             yield sk.utils.shuffle(np.array(images), np.array(angles))
 
-def train(data_dirs, saved_model=None, save_to=None):
+def train(data_dirs, epochs=4, saved_model=None, save_to=None):
     BATCH_SIZE = 60
 
     print('Loading...')
@@ -93,7 +93,7 @@ def train(data_dirs, saved_model=None, save_to=None):
         train_generator, \
         validation_data=valid_generator, \
         steps_per_epoch=len(train_samples)*6/BATCH_SIZE, \
-        epochs=10, \
+        epochs=epochs, \
         validation_steps=len(valid_samples)*6/BATCH_SIZE \
     )
     # m.fit(X_train, y_train, validation_split=0.2, shuffle=True, epochs=6)
@@ -105,6 +105,7 @@ def train(data_dirs, saved_model=None, save_to=None):
 
 def run():
     parser = argparse.ArgumentParser()
+    parser.add_argument('epochs')
     parser.add_argument('save_to')
     args = parser.parse_args()
 
@@ -115,7 +116,7 @@ def run():
         'data/04_curve',
         'data/05_reverse'
     ]
-    train(data_dirs, save_to=args.save_to)
+    train(data_dirs, epochs=args.epochs, save_to=args.save_to)
 
 if __name__ == '__main__':
     run()
