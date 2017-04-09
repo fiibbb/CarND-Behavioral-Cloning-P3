@@ -54,6 +54,11 @@ def load_data(dir):
     angles = [float(line[3]) for line in lines] + \
              [float(line[3]) + correction for line in lines] + \
              [float(line[3]) - correction for line in lines]
+
+    for i in range(len(images)):
+        if images[i] is None:
+            print('Failed to load image {}, path was {}'.format(i, lines[i//3][i%3]))
+
     images = images + [cv2.flip(image.copy(), 1) for image in images]
     angles = angles + [-angle for angle in angles]
 
@@ -94,7 +99,7 @@ def run():
     parser.add_argument('save_to')
     args = parser.parse_args()
 
-    train(['data/01_official', 'data/03_recover_lane'], save_to=args.save_to)
+    train(['data/03_recover_lane', 'data/01_official'], save_to=args.save_to)
 
 if __name__ == '__main__':
     run()
