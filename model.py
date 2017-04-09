@@ -116,7 +116,7 @@ def run():
         'data/04_curve',
         'data/05_reverse'
     ]
-    train(data_dirs, epochs=args.epochs, save_to=args.save_to)
+    train(data_dirs, epochs=int(args.epochs), save_to=args.save_to)
 
 if __name__ == '__main__':
     run()
