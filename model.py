@@ -20,15 +20,10 @@ def nv_sdc():
 
     # 3 5x5 convolutional layers and 2 3x3 convolutional layers
     model.add(Conv2D(24, (5, 5), strides=(2, 2), activation='relu'))
-    model.add(Dropout(0.5))
     model.add(Conv2D(36, (5, 5), strides=(2, 2), activation='relu'))
-    model.add(Dropout(0.5))
     model.add(Conv2D(48, (5, 5), strides=(2, 2), activation='relu'))
-    model.add(Dropout(0.5))
     model.add(Conv2D(64, (3, 3), activation='relu'))
-    model.add(Dropout(0.5))
     model.add(Conv2D(64, (3, 3), activation='relu'))
-    model.add(Dropout(0.5))
 
     # Flatten
     model.add(Flatten())
@@ -99,7 +94,7 @@ def run():
     parser.add_argument('save_to')
     args = parser.parse_args()
 
-    train(['data'], save_to=args.save_to)
+    train(['data/01_official', 'data/03_recover_lane'], save_to=args.save_to)
 
 if __name__ == '__main__':
     run()
