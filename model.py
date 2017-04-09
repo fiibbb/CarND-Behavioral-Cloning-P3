@@ -3,11 +3,14 @@ from keras.models import load_model
 from keras.layers.core import Flatten, Lambda, Dense, Activation, Dropout
 from keras.layers.convolutional import Conv2D
 from keras.layers import Cropping2D
+from sklearn.model_selection import train_test_split
+import sklearn as sk
 import numpy as np
 import cv2
 import csv
 import argparse
 from os import path
+from random import shuffle
 
 # Assume input shape is (160, 320, 3)
 def nv_sdc():
@@ -41,42 +44,42 @@ def nv_sdc():
 
     return model
 
-def load_data(dir):
-    print(' -- loading samples from {}'.format(dir))
-    with open(path.join(dir, 'driving_log.csv')) as f:
-        reader = csv.reader(f)
-        lines = [line for line in reader][1:]
-
-    correction = 0.2
-    images = [cv2.imread(path.join(dir, line[0].strip())) for line in lines] + \
-             [cv2.imread(path.join(dir, line[1].strip())) for line in lines] + \
-             [cv2.imread(path.join(dir, line[2].strip())) for line in lines]
-    angles = [float(line[3]) for line in lines] + \
-             [float(line[3]) + correction for line in lines] + \
-             [float(line[3]) - correction for line in lines]
-
-    for i in range(len(images)):
-        if images[i] is None:
-            print('Failed to load image {}, path was {}'.format(i, lines[i//3][i%3]))
-
-    images = images + [cv2.flip(image.copy(), 1) for image in images]
-    angles = angles + [-angle for angle in angles]
-
-    print(' -- loaded {} x 6 samples'.format(len(lines)))
-    return images, angles
-
-def load_all_data(dirs):
-    all_images, all_angles = [], []
+def load_samples(dirs):
+    all_samples = []
     for dir in dirs:
-        new_images, new_angles = load_data(dir)
-        all_images, all_angles = all_images + new_images, all_angles + new_angles
-    return np.array(all_images), np.array(all_angles)
+        with open(path.join(dir, 'driving_log.csv')) as f:
+            reader = csv.reader(f)
+            lines = [line for line in reader]
+            all_samples = all_samples + lines
+    print('Loaded {} samples'.format(len(all_samples)))
+    return all_samples
 
-def train(recording_dirs, saved_model=None, save_to=None):
+def sample_generator(samples, batch_size=60):  # batch_size should be multiple of 6
+    correction = 0.2
+    num_samples = len(samples)
+    while 1:
+        shuffle(samples)
+        for offset in range(0, num_samples, batch_size // 6):
+            batch_samples = samples[offset:offset+(batch_size//6)]
+            images, angles = [], []
+            for batch_sample in batch_samples:
+                new_images = [cv2.imread(batch_sample[i].strip()) for i in range(3)]
+                new_angles = [float(batch_sample[3]), float(batch_sample[3]) + correction, float(batch_sample[3]) - correction]
+                new_images = new_images + [cv2.flip(new_image, 1) for new_image in new_images]
+                new_angles = new_angles + [-new_angle for new_angle in new_angles]
+                images, angles = images + new_images, angles + new_angles
+            yield sk.utils.shuffle(np.array(images), np.array(angles))
+
+def train(data_dirs, saved_model=None, save_to=None):
+    BATCH_SIZE = 60
+
     print('Loading...')
-    X_train, y_train = load_all_data(recording_dirs)
+    all_samples = load_samples(data_dirs)
+    train_samples, valid_samples = train_test_split(all_samples, test_size=0.2)
+    train_generator = sample_generator(train_samples, batch_size=BATCH_SIZE)
+    valid_generator = sample_generator(valid_samples, batch_size=BATCH_SIZE)
 
-    print('Using {} training examples...'.format(len(X_train)))
+    print('Using {} training examples...'.format(len(train_samples)))
 
     if saved_model:
         print('Using model {}...'.format(saved_model))
@@ -87,7 +90,14 @@ def train(recording_dirs, saved_model=None, save_to=None):
         m.compile(loss='mse', optimizer='adam')
 
     print('Training...')
-    m.fit(X_train, y_train, validation_split=0.2, shuffle=True, epochs=6)
+    m.fit_generator( \
+        train_generator, \
+        validation_data=valid_generator, \
+        steps_per_epoch=len(train_samples)*6/BATCH_SIZE, \
+        epochs=3, \
+        validation_steps=len(valid_samples)*6/BATCH_SIZE \
+    )
+    # m.fit(X_train, y_train, validation_split=0.2, shuffle=True, epochs=6)
 
     if save_to:
         print('Saving...')
@@ -99,7 +109,8 @@ def run():
     parser.add_argument('save_to')
     args = parser.parse_args()
 
-    train(['data/03_recover_lane', 'data/01_official'], save_to=args.save_to)
+    data_dirs = ['data/03_recover_lane', 'data/01_official']
+    train(data_dirs, save_to=args.save_to)
 
 if __name__ == '__main__':
     run()
