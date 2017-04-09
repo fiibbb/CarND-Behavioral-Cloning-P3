@@ -54,15 +54,15 @@ def load_samples(dirs):
     return all_samples
 
 def sample_generator(samples, batch_size=60):  # batch_size should be multiple of 6
-    correction = 0.2
+    correction = 0.1
     num_samples = len(samples)
     while 1:
         shuffle(samples)
         for offset in range(0, num_samples, batch_size // 6):
-            batch_samples = samples[offset:offset+(batch_size//6)]
+            batch_samples = samples[offset : offset + batch_size // 6]
             images, angles = [], []
             for batch_sample in batch_samples:
-                new_images = [cv2.imread(batch_sample[i].strip()) for i in range(3)]
+                new_images = [cv2.cvtColor(cv2.imread(batch_sample[i].strip(), cv2.COLOR_BGR2RGB)) for i in range(3)]
                 new_angles = [float(batch_sample[3]), float(batch_sample[3]) + correction, float(batch_sample[3]) - correction]
                 new_images = new_images + [cv2.flip(new_image, 1) for new_image in new_images]
                 new_angles = new_angles + [-new_angle for new_angle in new_angles]
@@ -86,7 +86,7 @@ def train(data_dirs, epochs=4, saved_model=None, save_to=None):
     else:
         print('Using new model')
         m = nv_sdc()
-        m.compile(loss='mse', optimizer='adam')
+        m.compile(loss='mae', optimizer='adam')
 
     print('Training...')
     m.fit_generator( \
