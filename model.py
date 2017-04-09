@@ -20,10 +20,15 @@ def nv_sdc():
 
     # 3 5x5 convolutional layers and 2 3x3 convolutional layers
     model.add(Conv2D(24, (5, 5), strides=(2, 2), activation='relu'))
+    model.add(Dropout(0.5))
     model.add(Conv2D(36, (5, 5), strides=(2, 2), activation='relu'))
+    model.add(Dropout(0.5))
     model.add(Conv2D(48, (5, 5), strides=(2, 2), activation='relu'))
+    model.add(Dropout(0.5))
     model.add(Conv2D(64, (3, 3), activation='relu'))
+    model.add(Dropout(0.5))
     model.add(Conv2D(64, (3, 3), activation='relu'))
+    model.add(Dropout(0.5))
 
     # Flatten
     model.add(Flatten())
@@ -34,6 +39,7 @@ def nv_sdc():
     model.add(Dense(50))
     model.add(Dropout(0.5))
     model.add(Dense(10))
+    model.add(Dropout(0.5))
 
     # Regression model outputs only one value
     model.add(Dense(1))
