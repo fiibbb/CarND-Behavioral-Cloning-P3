@@ -62,7 +62,7 @@ def sample_generator(samples, batch_size=60):  # batch_size should be multiple o
             batch_samples = samples[offset : offset + batch_size // 6]
             images, angles = [], []
             for batch_sample in batch_samples:
-                new_images = [cv2.cvtColor(cv2.imread(batch_sample[i].strip(), cv2.COLOR_BGR2RGB)) for i in range(3)]
+                new_images = [cv2.cvtColor(cv2.imread(batch_sample[i].strip()), cv2.COLOR_BGR2RGB) for i in range(3)]
                 new_angles = [float(batch_sample[3]), float(batch_sample[3]) + correction, float(batch_sample[3]) - correction]
                 new_images = new_images + [cv2.flip(new_image, 1) for new_image in new_images]
                 new_angles = new_angles + [-new_angle for new_angle in new_angles]
@@ -111,10 +111,10 @@ def run():
 
     data_dirs = [
         'data/01_official',
-        'data/02_keep_lane',
-        'data/03_recover_lane',
-        'data/04_curve',
-        'data/05_reverse'
+	'data/02_keep_lane',
+	'data/03_recover_lane',
+	'data/04_curve',
+	'data/05_reverse'
     ]
     train(data_dirs, epochs=int(args.epochs), save_to=args.save_to)
 
